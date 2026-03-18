@@ -4,6 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>2026 MotoGP Schedule</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    
     <style>
         :root {
             --bg-color: #f0f0f0;
@@ -13,12 +17,13 @@
             --text-light: #ffffff;
             --text-gray: #888888;
             --red: #e3001b;
-            --font-family: 'Arial', sans-serif;
+            --font-main: 'Chakra Petch', sans-serif;
+            --font-numbers: 'Orbitron', sans-serif;
         }
 
         body {
             background-color: var(--bg-color);
-            font-family: var(--font-family);
+            font-family: var(--font-main);
             margin: 0;
             padding: 0;
         }
@@ -33,10 +38,12 @@
 
         .header-container h1 {
             margin: 0;
-            font-size: 28px;
+            font-size: 32px;
+            font-family: var(--font-numbers);
             text-transform: uppercase;
             letter-spacing: 2px;
             font-weight: 900;
+            font-style: italic; 
         }
 
         .grid-container {
@@ -65,8 +72,6 @@
             color: var(--text-light);
         }
 
-        .card.up-next .gray-text { color: #cccccc; }
-
         .card.live {
             border: 2px solid var(--red);
             cursor: pointer;
@@ -78,36 +83,51 @@
         }
 
         .date-range {
-            font-size: 12px;
+            font-size: 13px;
             color: var(--text-gray);
             margin-bottom: 5px;
-            font-weight: bold;
+            font-weight: 600;
+            letter-spacing: 0.5px;
         }
 
         .card.up-next .date-range { color: #aaaaaa; }
 
+        /* PERFECTLY ROUND FLAG CSS */
         .flag {
-            width: 20px;
-            height: auto;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            object-fit: cover; /* Ensures the flag fills the circle without stretching */
             display: inline-block;
-            margin-bottom: 5px;
+            margin-bottom: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            background-color: #eee; /* Fallback color while loading */
         }
 
         .country-title {
-            font-size: 18px;
-            font-weight: 900;
+            font-size: 20px;
+            font-weight: 700;
             margin: 0 0 5px 0;
             display: flex;
             align-items: center;
             gap: 8px;
+            text-transform: uppercase;
         }
 
-        .race-num { font-weight: 300; }
+        .race-num { 
+            font-family: var(--font-numbers);
+            font-weight: 700; 
+            font-size: 18px;
+            color: var(--text-gray);
+        }
+        
+        .card.up-next .race-num { color: #fff; }
 
         .sponsor-title {
-            font-size: 10px;
+            font-size: 11px;
             color: var(--text-gray);
             text-transform: uppercase;
+            font-weight: 600;
         }
 
         .card.up-next .sponsor-title { color: #999999; }
@@ -118,8 +138,9 @@
             top: 0;
             right: 0;
             padding: 4px 12px;
-            font-size: 10px;
-            font-weight: bold;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
             text-transform: uppercase;
             border-bottom-left-radius: 8px;
             color: #fff;
@@ -168,14 +189,12 @@
             border: none;
         }
 
-        /* Updated Controls Layout to prevent blocking native player UI */
         .iframe-controls {
             position: absolute;
             top: 0; left: 0; width: 100%; height: 100%; 
             background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 15%, transparent 80%, rgba(0,0,0,0.7) 100%);
             opacity: 0;
             transition: opacity 0.3s;
-            /* CRITICAL FIX: Let clicks pass through the invisible gradient to the video */
             pointer-events: none; 
         }
 
@@ -185,13 +204,11 @@
 
         .source-btns {
             position: absolute;
-            /* Raised from 25px to 70px to clear the video player's native play/volume bar */
             bottom: 70px; 
             left: 50%;
             transform: translateX(-50%);
             display: flex;
             gap: 15px;
-            /* Re-enable clicks ONLY for the buttons */
             pointer-events: auto; 
         }
 
@@ -203,7 +220,10 @@
             padding: 10px 24px;
             border-radius: 6px;
             cursor: pointer;
-            font-weight: bold;
+            font-family: var(--font-main);
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
             transition: all 0.2s;
             box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
@@ -231,26 +251,28 @@
             align-items: center;
             transition: 0.2s;
             box-shadow: 0 4px 6px rgba(0,0,0,0.3);
-            /* Re-enable clicks ONLY for the button */
             pointer-events: auto; 
         }
 
         .close-btn:hover { background: var(--red); border-color: var(--red); }
         
-        /* Utility for testing */
         .test-controls {
             padding: 0 40px;
             margin-bottom: 20px;
-            font-size: 12px;
+            font-size: 14px;
         }
     </style>
 </head>
 <body>
 
     <div class="header-container">
-        <h1>2026 MotoGP Calendar</h1>
+        <h1>2026 Calendar</h1>
     </div>
     
+    <div class="test-controls">
+        <label><input type="checkbox" id="forceLiveToggle"> <i>Developer Toggle: Force next event to be "LIVE" to test iframe functionality.</i></label>
+    </div>
+
     <div class="grid-container" id="schedule-grid"></div>
 
     <div class="modal" id="video-modal">
@@ -262,46 +284,45 @@
                     <button class="active" onclick="changeSource(1)">Source 1</button>
                     <button onclick="changeSource(2)">Source 2</button>
                     <button onclick="changeSource(3)">Source 3</button>
+                    <button onclick="changeSource(4)">Source 4</button>
                 </div>
                 <button class="close-btn" onclick="closeModal()">✕</button>
             </div>
         </div>
     </div>
-    <div class="test-controls">
-        <label><input type="checkbox" id="forceLiveToggle"> <i>Developer Toggle: Force next event to be "LIVE" to test iframe functionality.</i></label>
-    </div>
 
     <script>
-        // Source URLs
         const sources = {
             1: "https://viewembed.ru/channel/TNTSports1[UK]",
             2: "https://viewembed.ru/channel/Fox501[Australia]",
-            3: "https://viewembed.ru/channel/SuperSportMotorsport[SouthAfrica]"
+            3: "https://viewembed.ru/channel/ESPN3[Netherlands]",
+            4: "https://viewembed.ru/channel/SuperSportMotorsport[SouthAfrica]"
         };
 
+        // Added ISO country codes (e.g., 'th', 'br') to fetch actual image flags
         const schedule = [
-            { id: 1, start: '2026-02-27', end: '2026-03-01', flag: '🇹🇭', country: 'THAILAND', title: 'PT GRAND PRIX OF THAILAND' },
-            { id: 2, start: '2026-03-20', end: '2026-03-22', flag: '🇧🇷', country: 'BRAZIL', title: 'ESTRELLA GALICIA 0,0 GRAND PRIX OF BRAZIL' },
-            { id: 3, start: '2026-03-27', end: '2026-03-29', flag: '🇺🇸', country: 'USA', title: 'RED BULL GRAND PRIX OF THE UNITED STATES' },
-            { id: 4, start: '2026-04-24', end: '2026-04-26', flag: '🇪🇸', country: 'SPAIN', title: 'ESTRELLA GALICIA 0,0 GRAND PRIX OF SPAIN' },
-            { id: 5, start: '2026-05-08', end: '2026-05-10', flag: '🇫🇷', country: 'FRANCE', title: 'MICHELIN GRAND PRIX OF FRANCE' },
-            { id: 6, start: '2026-05-15', end: '2026-05-17', flag: '🇪🇸', country: 'CATALONIA', title: 'MONSTER ENERGY GRAND PRIX OF CATALUNYA' },
-            { id: 7, start: '2026-05-29', end: '2026-05-31', flag: '🇮🇹', country: 'ITALY', title: 'BREMBO GRAND PRIX OF ITALY' },
-            { id: 8, start: '2026-06-05', end: '2026-06-07', flag: '🇭🇺', country: 'HUNGARY', title: 'GRAND PRIX OF HUNGARY' },
-            { id: 9, start: '2026-06-19', end: '2026-06-21', flag: '🇨🇿', country: 'CZECHIA', title: 'GRAND PRIX OF CZECHIA' },
-            { id: 10, start: '2026-06-26', end: '2026-06-28', flag: '🇳🇱', country: 'NETHERLANDS', title: 'GRAND PRIX OF THE NETHERLANDS' },
-            { id: 11, start: '2026-07-10', end: '2026-07-12', flag: '🇩🇪', country: 'GERMANY', title: 'LIQUI MOLY GRAND PRIX OF GERMANY' },
-            { id: 12, start: '2026-08-07', end: '2026-08-09', flag: '🇬🇧', country: 'GREAT BRITAIN', title: 'QATAR AIRWAYS GRAND PRIX OF GREAT BRITAIN' },
-            { id: 13, start: '2026-08-28', end: '2026-08-30', flag: '🇪🇸', country: 'ARAGON', title: 'GRAND PRIX OF ARAGON' },
-            { id: 14, start: '2026-09-11', end: '2026-09-13', flag: '🇸🇲', country: 'SAN MARINO', title: 'RED BULL GRAND PRIX OF SAN MARINO AND THE RIMINI RIVIERA' },
-            { id: 15, start: '2026-09-18', end: '2026-09-20', flag: '🇦🇹', country: 'AUSTRIA', title: 'GRAND PRIX OF AUSTRIA' },
-            { id: 16, start: '2026-10-02', end: '2026-10-04', flag: '🇯🇵', country: 'JAPAN', title: 'MOTUL GRAND PRIX OF JAPAN' },
-            { id: 17, start: '2026-10-09', end: '2026-10-11', flag: '🇮🇩', country: 'INDONESIA', title: 'PERTAMINA GRAND PRIX OF INDONESIA' },
-            { id: 18, start: '2026-10-23', end: '2026-10-25', flag: '🇦🇺', country: 'AUSTRALIA', title: 'GRAND PRIX OF AUSTRALIA' },
-            { id: 19, start: '2026-10-30', end: '2026-11-01', flag: '🇲🇾', country: 'MALAYSIA', title: 'PETRONAS GRAND PRIX OF MALAYSIA' },
-            { id: 20, start: '2026-11-06', end: '2026-11-08', flag: '🇶🇦', country: 'QATAR', title: 'QATAR AIRWAYS GRAND PRIX OF QATAR' },
-            { id: 21, start: '2026-11-20', end: '2026-11-22', flag: '🇵🇹', country: 'PORTUGAL', title: 'REPSOL GRAND PRIX OF PORTUGAL' },
-            { id: 22, start: '2026-11-27', end: '2026-11-29', flag: '🇪🇸', country: 'VALENCIA', title: 'MOTUL GRAND PRIX OF VALENCIA' }
+            { id: 1, start: '2026-02-27', end: '2026-03-01', code: 'th', country: 'THAILAND', title: 'PT GRAND PRIX OF THAILAND' },
+            { id: 2, start: '2026-03-20', end: '2026-03-22', code: 'br', country: 'BRAZIL', title: 'ESTRELLA GALICIA 0,0 GRAND PRIX OF BRAZIL' },
+            { id: 3, start: '2026-03-27', end: '2026-03-29', code: 'us', country: 'USA', title: 'RED BULL GRAND PRIX OF THE UNITED STATES' },
+            { id: 4, start: '2026-04-24', end: '2026-04-26', code: 'es', country: 'SPAIN', title: 'ESTRELLA GALICIA 0,0 GRAND PRIX OF SPAIN' },
+            { id: 5, start: '2026-05-08', end: '2026-05-10', code: 'fr', country: 'FRANCE', title: 'MICHELIN GRAND PRIX OF FRANCE' },
+            { id: 6, start: '2026-05-15', end: '2026-05-17', code: 'es', country: 'CATALONIA', title: 'MONSTER ENERGY GRAND PRIX OF CATALUNYA' },
+            { id: 7, start: '2026-05-29', end: '2026-05-31', code: 'it', country: 'ITALY', title: 'BREMBO GRAND PRIX OF ITALY' },
+            { id: 8, start: '2026-06-05', end: '2026-06-07', code: 'hu', country: 'HUNGARY', title: 'GRAND PRIX OF HUNGARY' },
+            { id: 9, start: '2026-06-19', end: '2026-06-21', code: 'cz', country: 'CZECHIA', title: 'GRAND PRIX OF CZECHIA' },
+            { id: 10, start: '2026-06-26', end: '2026-06-28', code: 'nl', country: 'NETHERLANDS', title: 'GRAND PRIX OF THE NETHERLANDS' },
+            { id: 11, start: '2026-07-10', end: '2026-07-12', code: 'de', country: 'GERMANY', title: 'LIQUI MOLY GRAND PRIX OF GERMANY' },
+            { id: 12, start: '2026-08-07', end: '2026-08-09', code: 'gb', country: 'GREAT BRITAIN', title: 'QATAR AIRWAYS GRAND PRIX OF GREAT BRITAIN' },
+            { id: 13, start: '2026-08-28', end: '2026-08-30', code: 'es', country: 'ARAGON', title: 'GRAND PRIX OF ARAGON' },
+            { id: 14, start: '2026-09-11', end: '2026-09-13', code: 'sm', country: 'SAN MARINO', title: 'RED BULL GRAND PRIX OF SAN MARINO AND THE RIMINI RIVIERA' },
+            { id: 15, start: '2026-09-18', end: '2026-09-20', code: 'at', country: 'AUSTRIA', title: 'GRAND PRIX OF AUSTRIA' },
+            { id: 16, start: '2026-10-02', end: '2026-10-04', code: 'jp', country: 'JAPAN', title: 'MOTUL GRAND PRIX OF JAPAN' },
+            { id: 17, start: '2026-10-09', end: '2026-10-11', code: 'id', country: 'INDONESIA', title: 'PERTAMINA GRAND PRIX OF INDONESIA' },
+            { id: 18, start: '2026-10-23', end: '2026-10-25', code: 'au', country: 'AUSTRALIA', title: 'GRAND PRIX OF AUSTRALIA' },
+            { id: 19, start: '2026-10-30', end: '2026-11-01', code: 'my', country: 'MALAYSIA', title: 'PETRONAS GRAND PRIX OF MALAYSIA' },
+            { id: 20, start: '2026-11-06', end: '2026-11-08', code: 'qa', country: 'QATAR', title: 'QATAR AIRWAYS GRAND PRIX OF QATAR' },
+            { id: 21, start: '2026-11-20', end: '2026-11-22', code: 'pt', country: 'PORTUGAL', title: 'REPSOL GRAND PRIX OF PORTUGAL' },
+            { id: 22, start: '2026-11-27', end: '2026-11-29', code: 'es', country: 'VALENCIA', title: 'MOTUL GRAND PRIX OF VALENCIA' }
         ];
 
         function formatDateString(startStr, endStr) {
@@ -358,7 +379,7 @@
                 const cardHtml = `
                     <div class="${classList}" ${onclickEvent}>
                         ${labelHtml}
-                        <div class="flag">${race.flag}</div>
+                        <img src="https://flagcdn.com/w40/${race.code}.png" alt="${race.country} flag" class="flag">
                         <div class="date-range">${formatDateString(race.start, race.end)}</div>
                         <h2 class="country-title"><span class="race-num">${race.id}</span> ${race.country}</h2>
                         <div class="sponsor-title">${race.title}</div>
