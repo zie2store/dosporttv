@@ -56,6 +56,52 @@ header {
     opacity: 0.85;
 }
 /* -----------------------------
+   NAVBAR
+------------------------------*/
+  .navbar {
+    position: sticky;
+    top: 20px;
+    display: flex;
+    justify-content: center;
+    z-index: 1000;
+  }
+
+  .nav-container {
+    display: flex;
+    gap: 10px;
+    padding: 10px 20px;
+
+    /* Glass effect */
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+
+    border-radius: 50px;
+    border: 1px solid rgba(255,255,255,0.2);
+    box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+  }
+
+  /* LINKS */
+  .nav-container a {
+    text-decoration: none;
+    color: white;
+    padding: 10px 18px;
+    border-radius: 30px;
+    font-size: 16px;
+    transition: all 0.3s ease;
+  }
+
+  /* HOVER EFFECT */
+  .nav-container a:hover {
+    background: rgba(255, 255, 255, 0.25);
+    backdrop-filter: blur(5px);
+  }
+
+  /* OPTIONAL ACTIVE STYLE */
+  .nav-container a.active {
+    background: rgba(255, 255, 255, 0.35);
+  }
+/* -----------------------------
    GRID
 ------------------------------*/
 #grid {
@@ -618,6 +664,13 @@ footer {
 <body>
 
 <header>
+      <div class="navbar">
+    <div class="nav-container">
+  <a href="/">Home</a>
+  <a href="/tv">TV</a>
+  <a href="/motogp">Moto GP</a>
+  </div>
+</div>
       <h1 class="site-title">
         <a href="#" id="resetSearch">📅 Do Sports!</a>
     </h1>
