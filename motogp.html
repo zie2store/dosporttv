@@ -17,6 +17,7 @@
             --text-light: #ffffff;
             --text-gray: #888888;
             --red: #e3001b;
+            --vr: #A2D700; 
             --font-main: 'Chakra Petch', sans-serif;
             --font-numbers: 'Orbitron', sans-serif;
         }
@@ -228,8 +229,12 @@
             box-shadow: 0 4px 6px rgba(0,0,0,0.3);
         }
 
-        .source-btns button:hover, .source-btns button.active {
-            background: var(--card-dark-bg);
+        .source-btns button.active {
+            background: var(--vr);
+            border-color: var(--vr);
+        }
+        .source-btns button:hover {
+            background: var(--red);
             border-color: var(--red);
         }
 
