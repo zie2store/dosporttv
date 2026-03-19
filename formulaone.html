@@ -1,0 +1,505 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2026 Formula 1 Schedule</title>
+    <link rel="icon" type="image/png" href="https://cdn-icons-png.flaticon.com/128/1275/1275415.png">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@400;600;700&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #f0f0f0;
+            --card-bg: #ffffff;
+            --card-dark-bg: #2a2a2a;
+            --text-main: #000000;
+            --text-light: #ffffff;
+            --text-gray: #888888;
+            --red: #e3001b; /* F1 uses a very similar red */
+            --vr: #A2D700; 
+            --font-main: 'Chakra Petch', sans-serif;
+            --font-numbers: 'Orbitron', sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            font-family: var(--font-main);
+            margin: 0;
+            padding: 0;
+        }
+
+        .header-container {
+            background-color: #000;
+            color: #fff;
+            padding: 20px 40px;
+            border-bottom: 4px solid var(--red);
+            margin-bottom: 30px;
+        }
+
+        .header-container h1 {
+            margin: 0;
+            font-size: 32px;
+            font-family: var(--font-numbers);
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-weight: 900;
+            font-style: italic;
+            text-align: center;
+        }
+
+        .grid-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 15px;
+            padding: 0 40px 40px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            transition: transform 0.2s;
+        }
+
+        .card.up-next {
+            background-color: var(--card-dark-bg);
+            color: var(--text-light);
+        }
+
+        /* Styling for Cancelled Races */
+        .card.cancelled {
+            opacity: 0.6;
+            filter: grayscale(100%);
+            background-color: #e0e0e0;
+        }
+
+        .card.live {
+            border: 2px solid var(--red);
+            cursor: pointer;
+            box-shadow: 0 0 15px rgba(227, 0, 27, 0.4);
+        }
+
+        .card.live:hover {
+            transform: translateY(-3px);
+        }
+        
+        .card:hover:not(.cancelled) {
+            border: 2px solid var(--red);
+        }
+
+        .date-range {
+            font-size: 13px;
+            color: var(--text-gray);
+            margin-bottom: 5px;
+            font-weight: 600;
+            letter-spacing: 0.5px;
+        }
+
+        .card.up-next .date-range { color: #aaaaaa; }
+
+        .flag {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            object-fit: cover; 
+            display: inline-block;
+            margin-bottom: 6px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+            background-color: #eee; 
+        }
+
+        .country-title {
+            font-size: 20px;
+            font-weight: 700;
+            margin: 0 0 5px 0;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            text-transform: uppercase;
+        }
+
+        .race-num { 
+            font-family: var(--font-numbers);
+            font-weight: 700; 
+            font-size: 18px;
+            color: var(--text-gray);
+        }
+        
+        .card.up-next .race-num { color: #fff; }
+
+        .sponsor-title {
+            font-size: 11px;
+            color: var(--text-gray);
+            text-transform: uppercase;
+            font-weight: 600;
+        }
+
+        .card.up-next .sponsor-title { color: #999999; }
+
+        /* Labels */
+        .status-label {
+            position: absolute;
+            top: 0;
+            right: 0;
+            padding: 4px 12px;
+            font-size: 11px;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            border-bottom-left-radius: 8px;
+            color: #fff;
+        }
+
+        .label-finished { background-color: #000; }
+        .label-up-next { background-color: var(--red); }
+        .label-cancelled { background-color: #555555; }
+        .label-live {
+            background-color: var(--red);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; }
+            50% { opacity: 0.6; }
+            100% { opacity: 1; }
+        }
+
+        /* Modal / Iframe */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal.active { display: flex; }
+
+        .iframe-container {
+            position: relative;
+            width: 90%;
+            max-width: 1000px;
+            aspect-ratio: 16 / 9;
+            background: #000;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        iframe {
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
+
+        .iframe-controls {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%; 
+            background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, transparent 15%, transparent 80%, rgba(0,0,0,0.7) 100%);
+            opacity: 0;
+            transition: opacity 0.3s;
+            pointer-events: none; 
+        }
+
+        .iframe-container:hover .iframe-controls {
+            opacity: 1;
+        }
+
+        .source-btns {
+            position: absolute;
+            bottom: 70px; 
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 15px;
+            pointer-events: auto; 
+        }
+
+        .source-btns button {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(4px);
+            border: 1px solid #fff;
+            color: #fff;
+            padding: 10px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-family: var(--font-main);
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            transition: all 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        .source-btns button.active {
+            background: var(--vr);
+            border-color: var(--vr);
+        }
+        .source-btns button:hover {
+            background: var(--red);
+            border-color: var(--red);
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            border: 2px solid #fff;
+            color: #fff;
+            width: 40px; height: 40px;
+            border-radius: 50%;
+            font-size: 18px;
+            font-weight: bold;
+            cursor: pointer;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: 0.2s;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            pointer-events: auto; 
+        }
+
+        .close-btn:hover { background: var(--red); border-color: var(--red); }
+        
+        .test-controls {
+            padding: 0 40px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            text-align: center;
+        }
+
+        /* NAVBAR */
+        .navbar {
+            top: 20px;
+            display: flex;
+            justify-content: center;
+            z-index: 1000;
+            margin-bottom: 20px;
+        }
+
+        .nav-container {
+            display: flex;
+            gap: 10px;
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-radius: 50px;
+            border: 1px solid rgba(255,255,255,0.2);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.2);
+        }
+
+        .nav-container a {
+            text-decoration: none;
+            color: white;
+            padding: 10px 18px;
+            border-radius: 30px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+
+        .nav-container a:hover {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(5px);
+        }
+
+        .nav-container a.active {
+            background: rgba(255, 255, 255, 0.35);
+        }
+    </style>
+</head>
+<body>
+
+    <div class="header-container">
+        <div class="navbar">
+            <div class="nav-container">
+                <a href="/">Home</a>
+                <a href="/tv">TV</a>
+                <a href="/motogp">Moto GP</a>
+                <a href="/f1" class="active">Formula 1</a>
+            </div>
+        </div>
+        <h1>2026 Formula 1 Calendar</h1>
+    </div>
+    
+    <div class="grid-container" id="schedule-grid"></div>
+
+    <div class="modal" id="video-modal">
+        <div class="iframe-container">
+            <iframe id="video-frame" src="" allowfullscreen></iframe>
+            
+            <div class="iframe-controls">
+                <div class="source-btns">
+                    <button class="active" onclick="changeSource(1)">CH. 1</button>
+                    <button onclick="changeSource(2)">CH. 2</button>
+                    <button onclick="changeSource(3)">CH. 3</button>
+                    <button onclick="changeSource(4)">CH. 4</button>
+                </div>
+                <button class="close-btn" onclick="closeModal()">✕</button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="test-controls">
+        <label><input type="checkbox" id="forceLiveToggle"> <i>LIVE test!</i></label>
+    </div>
+
+    <script>
+        const sources = {
+            1: "https://viewembed.ru/channel/SuperSportMotorsport[SouthAfrica]",
+            2: "https://viewembed.ru/channel/TNTSports2[UK]",
+            3: "https://viewembed.ru/channel/Fox506[Australia]",
+            4: "https://viewembed.ru/channel/ZiggoSport[Netherlands]"
+        };
+
+        // Parsed Formula 1 Data
+        const schedule = [
+            { round: 1, country: "Australia", country_code: "au", start_date: "2026-03-06", end_date: "2026-03-08", grand_prix: "Formula 1 Qatar Airways Australian Grand Prix 2026" },
+            { round: 2, country: "China", country_code: "cn", start_date: "2026-03-13", end_date: "2026-03-15", grand_prix: "Formula 1 Heineken Chinese Grand Prix 2026" },
+            { round: 3, country: "Japan", country_code: "jp", start_date: "2026-03-27", end_date: "2026-03-29", grand_prix: "Formula 1 Aramco Japanese Grand Prix 2026" },
+            { round: 4, country: "Bahrain", country_code: "bh", start_date: "2026-04-10", end_date: "2026-04-12", grand_prix: "Formula 1 Gulf Air Bahrain Grand Prix 2026", status: "cancelled" },
+            { round: 5, country: "Saudi Arabia", country_code: "sa", start_date: "2026-04-17", end_date: "2026-04-19", grand_prix: "Formula 1 STC Saudi Arabian Grand Prix 2026", status: "cancelled" },
+            { round: 6, country: "USA (Miami)", country_code: "us", start_date: "2026-05-01", end_date: "2026-05-03", grand_prix: "Formula 1 Crypto.com Miami Grand Prix 2026" },
+            { round: 7, country: "Canada", country_code: "ca", start_date: "2026-05-22", end_date: "2026-05-24", grand_prix: "Formula 1 Lenovo Canadian Grand Prix 2026" },
+            { round: 8, country: "Monaco", country_code: "mc", start_date: "2026-06-05", end_date: "2026-06-07", grand_prix: "Formula 1 Louis Vuitton Monaco Grand Prix 2026" },
+            { round: 9, country: "Spain (Barcelona)", country_code: "es", start_date: "2026-06-12", end_date: "2026-06-14", grand_prix: "Formula 1 MSC Cruises Barcelona-Catalunya Grand Prix 2026" },
+            { round: 10, country: "Austria", country_code: "at", start_date: "2026-06-26", end_date: "2026-06-28", grand_prix: "Formula 1 Lenovo Austrian Grand Prix 2026" },
+            { round: 11, country: "Great Britain", country_code: "gb", start_date: "2026-07-03", end_date: "2026-07-05", grand_prix: "Formula 1 Pirelli British Grand Prix 2026" },
+            { round: 12, country: "Belgium", country_code: "be", start_date: "2026-07-17", end_date: "2026-07-19", grand_prix: "Formula 1 Belgian Grand Prix 2026" },
+            { round: 13, country: "Hungary", country_code: "hu", start_date: "2026-07-24", end_date: "2026-07-26", grand_prix: "Formula 1 Hungarian Grand Prix 2026" },
+            { round: 14, country: "Netherlands", country_code: "nl", start_date: "2026-08-21", end_date: "2026-08-23", grand_prix: "Formula 1 Dutch Grand Prix 2026" },
+            { round: 15, country: "Italy", country_code: "it", start_date: "2026-09-04", end_date: "2026-09-06", grand_prix: "Formula 1 Italian Grand Prix 2026" },
+            { round: 16, country: "Spain (Madrid)", country_code: "es", start_date: "2026-09-11", end_date: "2026-09-13", grand_prix: "Formula 1 Spanish Grand Prix 2026" },
+            { round: 17, country: "Azerbaijan", country_code: "az", start_date: "2026-09-25", end_date: "2026-09-27", grand_prix: "Formula 1 Azerbaijan Grand Prix 2026" },
+            { round: 18, country: "Singapore", country_code: "sg", start_date: "2026-10-09", end_date: "2026-10-11", grand_prix: "Formula 1 Singapore Airlines Singapore Grand Prix 2026" },
+            { round: 19, country: "USA (Austin)", country_code: "us", start_date: "2026-10-23", end_date: "2026-10-25", grand_prix: "Formula 1 United States Grand Prix 2026" },
+            { round: 20, country: "Mexico", country_code: "mx", start_date: "2026-10-30", end_date: "2026-11-01", grand_prix: "Formula 1 Mexico City Grand Prix 2026" },
+            { round: 21, country: "Brazil", country_code: "br", start_date: "2026-11-06", end_date: "2026-11-08", grand_prix: "Formula 1 São Paulo Grand Prix 2026" },
+            { round: 22, country: "USA (Las Vegas)", country_code: "us", start_date: "2026-11-19", end_date: "2026-11-21", grand_prix: "Formula 1 Heineken Las Vegas Grand Prix 2026" },
+            { round: 23, country: "Qatar", country_code: "qa", start_date: "2026-11-27", end_date: "2026-11-29", grand_prix: "Formula 1 Qatar Airways Qatar Grand Prix 2026" },
+            { round: 24, country: "Abu Dhabi", country_code: "ae", start_date: "2026-12-04", end_date: "2026-12-06", grand_prix: "Formula 1 Etihad Airways Abu Dhabi Grand Prix 2026" }
+        ];
+
+        function formatDateString(startStr, endStr) {
+            const start = new Date(startStr);
+            const end = new Date(endStr);
+            const months = ["JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"];
+            
+            const sDate = String(start.getDate()).padStart(2, '0');
+            const sMonth = months[start.getMonth()];
+            
+            const eDate = String(end.getDate()).padStart(2, '0');
+            const eMonth = months[end.getMonth()];
+
+            return `${sDate} ${sMonth} - ${eDate} ${eMonth}`;
+        }
+
+        function renderCards(forceLive = false) {
+            const grid = document.getElementById('schedule-grid');
+            grid.innerHTML = '';
+
+            const now = new Date();
+            const today = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+            
+            let foundUpcoming = false;
+
+            schedule.forEach(race => {
+                const startDate = new Date(race.start_date).getTime();
+                const endDate = new Date(race.end_date).getTime();
+                const isCancelled = race.status === 'cancelled';
+
+                let status = '';
+                let labelHtml = '';
+                let classList = 'card';
+                let onclickEvent = '';
+
+                // Add Status Logic
+                if (isCancelled) {
+                    classList += ' cancelled';
+                    labelHtml = '<div class="status-label label-cancelled">CANCELLED</div>';
+                } else if (endDate < today) {
+                    classList += ' finished';
+                    labelHtml = '<div class="status-label label-finished">FINISHED</div>';
+                } else if (today >= startDate && today <= endDate) {
+                    classList += ' live';
+                    labelHtml = '<div class="status-label label-live">LIVE</div>';
+                    onclickEvent = 'onclick="openLiveStream()"';
+                } else if (!foundUpcoming) {
+                    if (forceLive) {
+                         classList += ' live';
+                         labelHtml = '<div class="status-label label-live">LIVE</div>';
+                         onclickEvent = 'onclick="openLiveStream()"';
+                    } else {
+                         classList += ' up-next';
+                         labelHtml = '<div class="status-label label-up-next">UP NEXT</div>';
+                    }
+                    foundUpcoming = true; 
+                }
+
+                const cardHtml = `
+                    <div class="${classList}" ${onclickEvent}>
+                        ${labelHtml}
+                        <img src="https://flagcdn.com/w40/${race.country_code.toLowerCase()}.png" alt="${race.country} flag" class="flag">
+                        <div class="date-range">${formatDateString(race.start_date, race.end_date)}</div>
+                        <h2 class="country-title"><span class="race-num">${race.round}</span> ${race.country}</h2>
+                        <div class="sponsor-title">${race.grand_prix}</div>
+                    </div>
+                `;
+                grid.innerHTML += cardHtml;
+            });
+        }
+
+        const modal = document.getElementById('video-modal');
+        const iframe = document.getElementById('video-frame');
+        const btns = document.querySelectorAll('.source-btns button');
+
+        function openLiveStream() {
+            modal.classList.add('active');
+            changeSource(1);
+        }
+
+        function closeModal() {
+            modal.classList.remove('active');
+            iframe.src = ''; 
+        }
+
+        function changeSource(sourceNum) {
+            iframe.src = sources[sourceNum];
+            
+            btns.forEach((btn, index) => {
+                if(index + 1 === sourceNum) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === "Escape" && modal.classList.contains('active')) {
+                closeModal();
+            }
+        });
+
+        document.getElementById('forceLiveToggle').addEventListener('change', (e) => {
+            renderCards(e.target.checked);
+        });
+
+        renderCards();
+
+    </script>
+</body>
+</html>
