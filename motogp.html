@@ -416,8 +416,9 @@
             let foundUpcoming = false;
 
             schedule.forEach(race => {
-                const startDate = new Date(race.start).getTime();
-                const endDate = new Date(race.end).getTime();
+                // Replacing hyphens with slashes forces JavaScript to use local time
+                const startDate = new Date(race.start_date.replace(/-/g, '\/')).getTime();
+                const endDate = new Date(race.end_date.replace(/-/g, '\/')).getTime();
 
                 let status = '';
                 let labelHtml = '';
