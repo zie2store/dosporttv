@@ -77,9 +77,18 @@
         }
 
         .card.live {
+            background-color: var(--red);
+            color: var(--text-light); /* Makes standard text white */
             border: 2px solid var(--red);
             cursor: pointer;
             box-shadow: 0 0 15px rgba(227, 0, 27, 0.4);
+        }
+
+        /* Override the gray text specifically for the live card */
+        .card.live .date-range,
+        .card.live .race-num,
+        .card.live .sponsor-title {
+            color: var(--text-light); 
         }
 
         .card.live:hover {
@@ -156,9 +165,11 @@
         .label-finished { background-color: #000; }
         .label-up-next { background-color: var(--red); }
         .label-live {
-            background-color: var(--red);
+            background-color: #000000; /* Changed to black */
+            color: var(--text-light);
             animation: pulse 1.5s infinite;
         }
+
 
         @keyframes pulse {
             0% { opacity: 1; }
