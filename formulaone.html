@@ -417,8 +417,8 @@
             let foundUpcoming = false;
 
             schedule.forEach(race => {
-                const startDate = new Date(race.start_date).getTime();
-                const endDate = new Date(race.end_date).getTime();
+                const startDate = new Date(race.start_date.replace(/-/g, '/')).getTime();
+                const endDate = new Date(race.end_date.replace(/-/g, '/')).getTime();
                 const isCancelled = race.status === 'cancelled';
 
                 let status = '';
