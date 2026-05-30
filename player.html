@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Video Proxy Test</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #fff;
+      margin: 0;
+      padding: 20px;
+    }
+    .wrap {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    input, button, textarea {
+      width: 100%;
+      box-sizing: border-box;
+      margin: 8px 0;
+      padding: 12px;
+      border-radius: 8px;
+      border: 1px solid #333;
+      background: #1a1a1a;
+      color: #fff;
+    }
+    button {
+      cursor: pointer;
+      font-weight: 700;
+    }
+    video {
+      width: 100%;
+      margin-top: 16px;
+      border-radius: 12px;
+      background: #000;
+    }
+    .small {
+      color: #bbb;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    code {
+      word-break: break-all;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Proxy Video Test</h1>
+    <p class="small">Paste the real MP4 URL with sign, then click Load Video. This page will call <code>/proxy.php?url=...</code>.</p>
+
+    <textarea id="videoUrl" rows="5"></textarea>
+    <button id="loadBtn">Load Video</button>
+
+    <p class="small">Proxy URL:</p>
+    <code id="proxyUrl"></code>
+
+    <video id="player" controls playsinline preload="metadata"></video>
+  </div>
+
+  <script>
+    const input = document.getElementById('videoUrl');
+    const btn = document.getElementById('loadBtn');
+    const player = document.getElementById('player');
+    const proxyUrlText = document.getElementById('proxyUrl');
+
+    function loadVideo() {
+      const realUrl = input.value.trim();
+      if (!realUrl) return;
+
+      const proxyUrl = 'https://gp.sekolahasoy.workers.dev/?url=' + encodeURIComponent(realUrl);
+      proxyUrlText.textContent = proxyUrl;
+      player.src = proxyUrl;
+      player.load();
+    }
+
+    btn.addEventListener('click', loadVideo);
+    loadVideo();
+  </script>
+</body>
+</html>
