@@ -70,7 +70,7 @@
       const realUrl = input.value.trim();
       if (!realUrl) return;
 
-      const proxyUrl = 'https://gp.sekolahasoy.workers.dev/proxy?url=' + encodeURIComponent(realUrl);
+      const proxyUrl = 'https://gp.sekolahasoy.workers.dev/proxy.php?url=' + encodeURIComponent(realUrl);
       proxyUrlText.textContent = proxyUrl;
       player.src = proxyUrl;
       player.load();
